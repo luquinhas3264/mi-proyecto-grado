@@ -5,7 +5,7 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider = "prisma-client-js"  
+  provider = "prisma-client-js"
 }
 
 datasource db {
@@ -14,44 +14,141 @@ datasource db {
 }
 
 model UsuarioInterno {
-  idUsuario   String   @id @default(uuid())
+  idUsuario   String      @id @default(uuid())
   nombre      String
-  correo      String   @unique
-  contraseña  String
-  activo      Boolean  @default(true)
+  correo      String      @unique
+  contraseña String
+  activo      Boolean     @default(true)
   idRol       String
-  rol         Rol      @relation(fields: [idRol], references: [idRol])
+  rol         Rol         @relation(fields: [idRol], references: [idRol])
+  actividades Actividad[]
 
   @@map("usuarios_internos")
 }
 
 model Rol {
-  idRol        String             @id @default(uuid())
-  nombre       String             @unique
-  descripcion  String?
-  usuarios     UsuarioInterno[]
-  permisos     RolPermiso[]
+  idRol       String           @id @default(uuid())
+  nombre      String           @unique
+  descripcion String?
+  usuarios    UsuarioInterno[]
+  permisos    RolPermiso[]
 
   @@map("roles")
 }
 
 model Permiso {
-  idPermiso  String       @id @default(uuid())
-  modulo     String
-  accion     String
-  roles      RolPermiso[]
+  idPermiso String       @id @default(uuid())
+  modulo    String
+  accion    String
+  roles     RolPermiso[]
 
   @@unique([modulo, accion])
   @@map("permisos")
 }
 
 model RolPermiso {
-  idRol       String
-  idPermiso   String
+  idRol     String
+  idPermiso String
 
-  rol         Rol      @relation(fields: [idRol], references: [idRol])
-  permiso     Permiso  @relation(fields: [idPermiso], references: [idPermiso])
+  rol     Rol     @relation(fields: [idRol], references: [idRol])
+  permiso Permiso @relation(fields: [idPermiso], references: [idPermiso])
 
   @@id([idRol, idPermiso])
   @@map("rol_permiso")
+}
+
+model ClienteEmpresa {
+  idCliente   String  @id @default(uuid())
+  razonSocial String
+  rubro       String
+  correo      String
+  telefono    String
+  direccion   String
+  activo      Boolean @default(true)
+
+  contactos   ContactoCliente[]
+  etiquetas   ClienteEtiqueta[]
+  actividades Actividad[]
+  proyectos   Proyecto[]
+
+  @@map("cliente_empresa")
+}
+
+model ContactoCliente {
+  idContacto String  @id @default(uuid())
+  nombre     String
+  cargo      String
+  email      String
+  telefono   String
+  activo     Boolean @default(true)
+
+  idCliente     String
+  cliente       ClienteEmpresa       @relation(fields: [idCliente], references: [idCliente])
+  interacciones InteraccionCliente[]
+
+  @@map("contacto_cliente")
+}
+
+model EtiquetaCliente {
+  idEtiqueta String            @id @default(uuid())
+  nombre     String            @unique
+  clientes   ClienteEtiqueta[]
+
+  @@map("etiqueta_cliente")
+}
+
+model ClienteEtiqueta {
+  idCliente  String
+  idEtiqueta String
+
+  cliente  ClienteEmpresa  @relation(fields: [idCliente], references: [idCliente])
+  etiqueta EtiquetaCliente @relation(fields: [idEtiqueta], references: [idEtiqueta])
+
+  @@id([idCliente, idEtiqueta])
+  @@map("cliente_etiqueta")
+}
+
+model InteraccionCliente {
+  idInteraccion String   @id @default(uuid())
+  fecha         DateTime @default(now())
+  tipo          String // llamada, correo, reunión, etc.
+  descripcion   String
+
+  idContacto String
+  contacto   ContactoCliente @relation(fields: [idContacto], references: [idContacto])
+
+  @@map("interaccion_cliente")
+}
+
+model Actividad {
+  idActividad String   @id @default(uuid())
+  fecha       DateTime @default(now())
+  tipo        String // creación, edición, interacción, etc.
+  descripcion String
+
+  idUsuario String
+  usuario   UsuarioInterno @relation(fields: [idUsuario], references: [idUsuario])
+
+  idCliente String
+  cliente   ClienteEmpresa @relation(fields: [idCliente], references: [idCliente])
+
+  idProyecto String?
+  proyecto   Proyecto? @relation(fields: [idProyecto], references: [idProyecto])
+
+  @@map("actividad")
+}
+
+model Proyecto {
+  idProyecto  String   @id @default(uuid())
+  nombre      String
+  descripcion String
+  estado      String // planeado, en progreso, finalizado
+  fechaInicio DateTime
+  fechaFin    DateTime
+
+  idCliente   String
+  cliente     ClienteEmpresa @relation(fields: [idCliente], references: [idCliente])
+  actividades Actividad[]
+
+  @@map("proyecto")
 }

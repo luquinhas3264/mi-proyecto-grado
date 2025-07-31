@@ -22,7 +22,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
         include: {
           permisos: {
             include: { permiso: true },
-          },
+          },  
         },  
       },
     },
