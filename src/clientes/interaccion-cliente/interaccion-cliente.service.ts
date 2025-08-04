@@ -29,6 +29,7 @@ export class InteraccionClienteService {
       },
     });
 
+    // Registrar actividad
     await this.actividadService.registrar({
       tipo: TipoActividad.INTERACCION,
       descripcion: `Nueva interacción (${dto.tipo}) con "${interaccion.contacto.nombre}".`,

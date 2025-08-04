@@ -139,16 +139,41 @@ model Actividad {
 }
 
 model Proyecto {
-  idProyecto  String   @id @default(uuid())
-  nombre      String
-  descripcion String
-  estado      String // planeado, en progreso, finalizado
-  fechaInicio DateTime
-  fechaFin    DateTime
+  idProyecto       String           @id @default(uuid())
+  nombre           String
+  descripcion      String?
+  estado           EstadoProyecto   @default(PLANEADO)
+  fechaInicio      DateTime
+  fechaFin         DateTime?
+  activo           Boolean          @default(true)
+  
+  idCliente        String
+  cliente          ClienteEmpresa   @relation(fields: [idCliente], references: [idCliente])             
 
-  idCliente   String
-  cliente     ClienteEmpresa @relation(fields: [idCliente], references: [idCliente])
-  actividades Actividad[]
+  notas            NotaProyecto[]
+  actividades      Actividad[]
+  // tareas         Tarea[]
+  // archivos       Archivo[]
 
+  creadoEn         DateTime         @default(now())
+  actualizadoEn    DateTime         @updatedAt
+  
   @@map("proyecto")
+}
+
+model NotaProyecto {
+  idNota      String   @id @default(uuid())
+  contenido   String
+  fecha       DateTime @default(now())
+
+  idProyecto  String
+  proyecto    Proyecto @relation(fields: [idProyecto], references: [idProyecto])
+
+  @@map("nota_proyecto")
+}
+
+enum EstadoProyecto {
+  PLANEADO
+  EN_PROGRESO
+  FINALIZADO
 }

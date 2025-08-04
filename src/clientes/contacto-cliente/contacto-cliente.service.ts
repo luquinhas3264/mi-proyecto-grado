@@ -58,7 +58,8 @@ export class ContactoClienteService {
         ...dto,
       },
     });
-        // Registrar actividad
+    
+    // Registrar actividad
     await this.actividadService.registrar({
       tipo: TipoActividad.EDICION,
       descripcion: `El contacto "${contacto.nombre}" fue editado.`,

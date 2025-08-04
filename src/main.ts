@@ -11,12 +11,15 @@ async function bootstrap() {
       whitelist: true,
       forbidNonWhitelisted: true,
       transform: true,
+      transformOptions: {
+        enableImplicitConversion: true,
+      },
     }),
   );
 
   const config = new DocumentBuilder()
-    .setTitle('Sistema de Gestión')
-    .setDescription('Módulo de Gestión de Usuarios, Roles y Permisos')
+    .setTitle('Sistema de Gestión - API')
+    .setDescription('API para gestión de clientes y proyectos')
     .setVersion('1.0')
     .addBearerAuth({
       type: 'http',
@@ -24,15 +27,33 @@ async function bootstrap() {
       bearerFormat: 'JWT',
       in: 'header',
       name: 'Authorization',
-      description: 'Enter your Bearer token',
+      description: 'Ingresa tu token JWT',
     })
+    .addTag('Auth', 'Autenticación y autorización')
+    .addTag('Usuarios Internos', 'Gestión de usuarios del sistema')
+    .addTag('Roles', 'Gestión de roles')
+    .addTag('Permisos', 'Gestión de permisos')    
+    .addTag('Clientes', 'Gestión de clientes empresa')
+    .addTag('Contactos', 'Gestión de contactos de clientes')
+    .addTag('Etiquetas', 'Gestión de etiquetas')
+    .addTag('Interacciones', 'Gestión de interacciones con clientes')
+    .addTag('Proyectos', 'Gestión de proyectos')
+    .addTag('Notas de Proyecto', 'Notas asociadas a proyectos')
+    .addTag('Actividades', 'Actividades asociadas a usuarios, clientes y proyectos')
     .addSecurityRequirements('bearer')
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api', app, document);
-  
+  SwaggerModule.setup('api', app, document, {
+    swaggerOptions: {
+      persistAuthorization: true,
+    },
+  });
 
-  await app.listen(process.env.PORT ?? 3000);
+  const port = process.env.PORT ?? 3000;
+  await app.listen(port);
+
+  console.log(`🚀 Aplicación ejecutándose en: http://localhost:${port}`);
+  console.log(`📚 Documentación Swagger: http://localhost:${port}/api`);
 }
 bootstrap();

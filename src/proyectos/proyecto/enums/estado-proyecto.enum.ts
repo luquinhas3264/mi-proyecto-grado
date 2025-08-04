@@ -1,0 +1,5 @@
+export enum EstadoProyecto {
+  PLANEADO = 'PLANEADO',
+  EN_PROGRESO = 'EN_PROGRESO',
+  FINALIZADO = 'FINALIZADO',
+}
