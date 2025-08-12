@@ -14,33 +14,38 @@ datasource db {
 }
 
 model UsuarioInterno {
-  idUsuario   String      @id @default(uuid())
+  idUsuario   String  @id @default(uuid())
   nombre      String
-  correo      String      @unique
+  correo      String  @unique
   contraseña String
-  activo      Boolean     @default(true)
-  idRol       String
-  rol         Rol         @relation(fields: [idRol], references: [idRol])
-  actividades Actividad[]
+  activo      Boolean @default(true)
+
+  idRol String
+  rol   Rol    @relation(fields: [idRol], references: [idRol])
+
+  actividades     Actividad[]
+  tareasAsignadas Tarea[]
 
   @@map("usuarios_internos")
 }
 
 model Rol {
-  idRol       String           @id @default(uuid())
-  nombre      String           @unique
+  idRol       String  @id @default(uuid())
+  nombre      String  @unique
   descripcion String?
-  usuarios    UsuarioInterno[]
-  permisos    RolPermiso[]
+
+  usuarios UsuarioInterno[]
+  permisos RolPermiso[]
 
   @@map("roles")
 }
 
 model Permiso {
-  idPermiso String       @id @default(uuid())
+  idPermiso String @id @default(uuid())
   modulo    String
   accion    String
-  roles     RolPermiso[]
+
+  roles RolPermiso[]
 
   @@unique([modulo, accion])
   @@map("permisos")
@@ -82,17 +87,19 @@ model ContactoCliente {
   telefono   String
   activo     Boolean @default(true)
 
-  idCliente     String
-  cliente       ClienteEmpresa       @relation(fields: [idCliente], references: [idCliente])
+  idCliente String
+  cliente   ClienteEmpresa @relation(fields: [idCliente], references: [idCliente])
+
   interacciones InteraccionCliente[]
 
   @@map("contacto_cliente")
 }
 
 model EtiquetaCliente {
-  idEtiqueta String            @id @default(uuid())
-  nombre     String            @unique
-  clientes   ClienteEtiqueta[]
+  idEtiqueta String @id @default(uuid())
+  nombre     String @unique
+
+  clientes ClienteEtiqueta[]
 
   @@map("etiqueta_cliente")
 }
@@ -139,41 +146,66 @@ model Actividad {
 }
 
 model Proyecto {
-  idProyecto       String           @id @default(uuid())
-  nombre           String
-  descripcion      String?
-  estado           EstadoProyecto   @default(PLANEADO)
-  fechaInicio      DateTime
-  fechaFin         DateTime?
-  activo           Boolean          @default(true)
-  
-  idCliente        String
-  cliente          ClienteEmpresa   @relation(fields: [idCliente], references: [idCliente])             
+  idProyecto  String         @id @default(uuid())
+  nombre      String
+  descripcion String?
+  estado      EstadoProyecto @default(PLANEADO)
+  fechaInicio DateTime
+  fechaFin    DateTime?
+  activo      Boolean        @default(true)
 
-  notas            NotaProyecto[]
-  actividades      Actividad[]
-  // tareas         Tarea[]
+  idCliente String
+  cliente   ClienteEmpresa @relation(fields: [idCliente], references: [idCliente])
+
+  notas       NotaProyecto[]
+  actividades Actividad[]
+  tareas      Tarea[]
   // archivos       Archivo[]
 
-  creadoEn         DateTime         @default(now())
-  actualizadoEn    DateTime         @updatedAt
-  
+  creadoEn      DateTime @default(now())
+  actualizadoEn DateTime @updatedAt
+
   @@map("proyecto")
 }
 
 model NotaProyecto {
-  idNota      String   @id @default(uuid())
-  contenido   String
-  fecha       DateTime @default(now())
+  idNota    String   @id @default(uuid())
+  contenido String
+  fecha     DateTime @default(now())
 
-  idProyecto  String
-  proyecto    Proyecto @relation(fields: [idProyecto], references: [idProyecto])
+  idProyecto String
+  proyecto   Proyecto @relation(fields: [idProyecto], references: [idProyecto])
 
   @@map("nota_proyecto")
+}
+
+model Tarea {
+  idTarea     String      @id @default(uuid())
+  nombre      String
+  descripcion String?
+  estado      EstadoTarea @default(PENDIENTE)
+  fechaLimite DateTime?
+
+  idProyecto String
+  proyecto   Proyecto @relation(fields: [idProyecto], references: [idProyecto])
+
+  idUsuarioResponsable String?
+  usuarioResponsable   UsuarioInterno? @relation(fields: [idUsuarioResponsable], references: [idUsuario])
+
+  creadoEn      DateTime @default(now())
+  actualizadoEn DateTime @updatedAt
+
+  @@map("tareas")
 }
 
 enum EstadoProyecto {
   PLANEADO
   EN_PROGRESO
   FINALIZADO
+}
+
+enum EstadoTarea {
+  PENDIENTE
+  EN_PROGRESO
+  COMPLETADA
 }

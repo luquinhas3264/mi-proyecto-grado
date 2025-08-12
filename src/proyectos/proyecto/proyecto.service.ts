@@ -152,7 +152,7 @@ export class ProyectoService {
           },
           take: 10, // Últimas 10 actividades
         },
-        // tareas: true (cuando exista),
+        tareas: true,
         // archivos: true (cuando exista),
       },
     });

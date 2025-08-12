@@ -40,6 +40,7 @@ async function bootstrap() {
     .addTag('Proyectos', 'Gestión de proyectos')
     .addTag('Notas de Proyecto', 'Notas asociadas a proyectos')
     .addTag('Actividades', 'Actividades asociadas a usuarios, clientes y proyectos')
+    .addTag('Tareas', 'Gestión de tareas por proyecto')
     .addSecurityRequirements('bearer')
     .build();
 

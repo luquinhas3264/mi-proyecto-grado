@@ -5,11 +5,12 @@ import { RolesModule } from './roles/roles.module';
 import { PermisosModule } from './permisos/permisos.module';
 import { ClientesModule } from './clientes/clientes.module';
 import { ProyectosModule } from './proyectos/proyectos.module';
+import { TareasModule } from './tareas/tareas.module';
 
 
 
 @Module({
-  imports: [AuthModule, UsuariosInternosModule, RolesModule, PermisosModule, ClientesModule, ProyectosModule],
+  imports: [AuthModule, UsuariosInternosModule, RolesModule, PermisosModule, ClientesModule, ProyectosModule, TareasModule],
   controllers: [],
   providers: [],
 })
