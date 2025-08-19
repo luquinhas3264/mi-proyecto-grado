@@ -25,6 +25,7 @@ model UsuarioInterno {
 
   actividades     Actividad[]
   tareasAsignadas Tarea[]
+  archivosCreados Archivo[]
 
   @@map("usuarios_internos")
 }
@@ -160,7 +161,7 @@ model Proyecto {
   notas       NotaProyecto[]
   actividades Actividad[]
   tareas      Tarea[]
-  // archivos       Archivo[]
+  archivos       Archivo[]
 
   creadoEn      DateTime @default(now())
   actualizadoEn DateTime @updatedAt
@@ -196,6 +197,26 @@ model Tarea {
   actualizadoEn DateTime @updatedAt
 
   @@map("tareas")
+}
+
+model Archivo {
+  idArchivo         String   @id @default(uuid())
+  nombre           String
+  tipo             String   // pdf, image, url, document, etc.
+  tamaño           Int?     // En bytes, NULL para enlaces
+  url              String   // Ruta local o URL externa  
+  descripcion      String?
+  
+  idProyecto       String
+  proyecto         Proyecto @relation(fields: [idProyecto], references: [idProyecto])
+  
+  idUsuarioCreador String
+  usuarioCreador   UsuarioInterno @relation(fields: [idUsuarioCreador], references: [idUsuario])
+  
+  creadoEn         DateTime @default(now())
+  actualizadoEn    DateTime @updatedAt
+
+  @@map("archivo")
 }
 
 enum EstadoProyecto {
