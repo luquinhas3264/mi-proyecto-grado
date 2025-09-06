@@ -50,7 +50,8 @@ export class ContactoClienteController {
 
   @Delete(':idContacto')
   @Permiso('contactos', 'eliminar')
-  eliminar(@Param('idContacto') idContacto: string) {
-    return this.contactoService.eliminar(idContacto);
+  eliminar(@Param('idContacto') idContacto: string, @Req() req: RequestWithUser) {
+    const idUsuario = req.user.idUsuario;    
+    return this.contactoService.eliminar(idContacto, idUsuario);
   }
 }

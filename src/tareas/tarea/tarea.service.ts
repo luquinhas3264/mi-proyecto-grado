@@ -5,18 +5,18 @@ import {
   ForbiddenException,
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { ActividadService } from 'src/clientes/actividad/actividad.service';
+import { ActividadesService } from 'src/actividades/actividades.service';
 import { CreateTareaDto } from './dto/create-tarea.dto';
 import { UpdateTareaDto } from './dto/update-tarea.dto';
 import { FiltrosTareaDto } from './dto/filtros-tarea.dto';
 import { EstadoTarea } from './enums/estado-tarea.enum';
-import { TipoActividad } from 'src/clientes/actividad/dto/create-actividad.dto';
+import { TipoActividad } from 'src/actividades/enums/tipo-actividad.enum';
 
 @Injectable()
 export class TareaService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly actividadService: ActividadService,
+    private readonly actividadesService: ActividadesService,
   ) {}
 
   // Crear tarea
@@ -63,7 +63,7 @@ export class TareaService {
     });
 
     // Registrar actividad
-    await this.actividadService.registrar({
+    await this.actividadesService.registrar({
       tipo: TipoActividad.CREACION,
       descripcion: `Se creó la tarea "${tarea.nombre}" en el proyecto "${tarea.proyecto.nombre}"`,
       idUsuario,
@@ -158,7 +158,7 @@ export class TareaService {
     });
 
     // Registrar actividad
-    await this.actividadService.registrar({
+    await this.actividadesService.registrar({
       tipo: TipoActividad.EDICION,
       descripcion: `Se actualizó la tarea "${tareaActualizada.nombre}"`,
       idUsuario,
@@ -190,8 +190,8 @@ export class TareaService {
     });
 
     // Registrar actividad
-    await this.actividadService.registrar({
-      tipo: TipoActividad.EDICION,
+    await this.actividadesService.registrar({
+      tipo: TipoActividad.CAMBIO_ESTADO_TAREA,
       descripcion: `Se cambió el estado de la tarea "${tareaActualizada.nombre}" a: ${estado}`,
       idUsuario,
       idCliente: tareaActualizada.proyecto.idCliente,
@@ -228,8 +228,8 @@ export class TareaService {
     });
 
     // Registrar actividad
-    await this.actividadService.registrar({
-      tipo: TipoActividad.EDICION,
+    await this.actividadesService.registrar({
+      tipo: TipoActividad.ASIGNACION,
       descripcion: `Se asignó la tarea "${tareaActualizada.nombre}" a ${usuario.nombre}`,
       idUsuario,
       idCliente: tareaActualizada.proyecto.idCliente,
@@ -251,8 +251,8 @@ export class TareaService {
     });
 
     // Registrar actividad 
-    await this.actividadService.registrar({
-      tipo: TipoActividad.EDICION,
+    await this.actividadesService.registrar({
+      tipo: TipoActividad.ELIMINACION,
       descripcion: `Se eliminó la tarea "${tarea.nombre}"`,
       idUsuario,
       idCliente: tarea.proyecto.idCliente,

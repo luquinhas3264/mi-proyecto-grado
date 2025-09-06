@@ -2,10 +2,10 @@ import { Module } from '@nestjs/common';
 import { TareaController } from './tarea.controller';
 import { TareaService } from './tarea.service';
 import { PrismaModule } from 'src/prisma/prisma.module';
-import { ActividadModule } from 'src/clientes/actividad/actividad.module';
+import { ActividadesModule } from 'src/actividades/actividades.module';
 
 @Module({
-  imports: [PrismaModule, ActividadModule],
+  imports: [PrismaModule, ActividadesModule],
   controllers: [TareaController],
   providers: [TareaService]
 })

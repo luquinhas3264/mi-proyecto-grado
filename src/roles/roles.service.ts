@@ -16,7 +16,13 @@ export class RolesService {
   }
 
   async listar() {
-    return this.prisma.rol.findMany();
+    return this.prisma.rol.findMany({
+      include: {
+        permisos: {
+          include: { permiso: true },
+        },
+      },
+    });
   }
 
   async obtener(idRol: string) {

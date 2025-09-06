@@ -32,14 +32,17 @@ async function bootstrap() {
     .addTag('Auth', 'Autenticación y autorización')
     .addTag('Usuarios Internos', 'Gestión de usuarios del sistema')
     .addTag('Roles', 'Gestión de roles')
-    .addTag('Permisos', 'Gestión de permisos')    
+    .addTag('Permisos', 'Gestión de permisos')
     .addTag('Clientes', 'Gestión de clientes empresa')
     .addTag('Contactos', 'Gestión de contactos de clientes')
     .addTag('Etiquetas', 'Gestión de etiquetas')
     .addTag('Interacciones', 'Gestión de interacciones con clientes')
     .addTag('Proyectos', 'Gestión de proyectos')
     .addTag('Notas de Proyecto', 'Notas asociadas a proyectos')
-    .addTag('Actividades', 'Actividades asociadas a usuarios, clientes y proyectos')
+    .addTag(
+      'Actividades',
+      'Actividades asociadas a usuarios, clientes y proyectos',
+    )
     .addTag('Tareas', 'Gestión de tareas por proyecto')
     .addSecurityRequirements('bearer')
     .build();
@@ -49,6 +52,11 @@ async function bootstrap() {
     swaggerOptions: {
       persistAuthorization: true,
     },
+  });
+
+  app.enableCors({
+    origin: 'http://localhost:5173', // o '*' para permitir todos los orígenes
+    credentials: true,
   });
 
   const port = process.env.PORT ?? 3000;

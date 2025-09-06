@@ -2,10 +2,10 @@ import { Module } from '@nestjs/common';
 import { NotaProyectoController } from './nota-proyecto.controller';
 import { NotaProyectoService } from './nota-proyecto.service';
 import { PrismaModule } from 'src/prisma/prisma.module';
-import { ActividadModule } from 'src/clientes/actividad/actividad.module';
+import { ActividadesModule } from 'src/actividades/actividades.module';
 
 @Module({
-  imports: [PrismaModule, ActividadModule],
+  imports: [PrismaModule, ActividadesModule],
   controllers: [NotaProyectoController],
   providers: [NotaProyectoService]
 })

@@ -57,7 +57,8 @@ export class ClienteEmpresaController {
 
   @Delete(':id')
   @Permiso('clientes', 'eliminar')
-  eliminar(@Param('id') id: string) {
-    return this.clienteService.eliminar(id);
+  eliminar(@Param('id') id: string, @Req() req: RequestWithUser) {
+    const idUsuario = req.user.idUsuario;
+    return this.clienteService.eliminar(id, idUsuario);
   }
 }

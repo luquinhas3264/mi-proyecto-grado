@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException, BadRequestException, ForbiddenException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { ActividadService } from 'src/clientes/actividad/actividad.service';
-import { TipoActividad } from 'src/clientes/actividad/dto/create-actividad.dto';
+import { ActividadesService } from 'src/actividades/actividades.service';
+import { TipoActividad } from 'src/actividades/enums/tipo-actividad.enum';
 import { CreateArchivoDto, CreateEnlaceDto, UpdateArchivoDto, FiltrosArchivoDto } from './dto';
 import { UrlUtils  } from './utils/url.utils';
 import { TipoArchivo } from './enums/tipo-archivo.enum';
@@ -13,7 +13,7 @@ import * as path from 'path';
 export class ArchivoService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly actividadService: ActividadService,
+    private readonly actividadesService: ActividadesService,
   ) {}
 
   // ===============================
@@ -53,8 +53,8 @@ export class ArchivoService {
     });
 
     // 4. Registrar actividad
-    await this.actividadService.registrar({
-      tipo: TipoActividad.CREACION,
+    await this.actividadesService.registrar({
+      tipo: TipoActividad.ARCHIVO_SUBIDO,
       descripcion: `Se subió el archivo "${archivo.nombre}" al proyecto "${archivo.proyecto.nombre}"`,
       idUsuario,
       idCliente: archivo.proyecto.idCliente,
@@ -107,8 +107,8 @@ export class ArchivoService {
     });
 
     // 6. Registrar actividad
-    await this.actividadService.registrar({
-      tipo: TipoActividad.CREACION,
+    await this.actividadesService.registrar({
+      tipo: TipoActividad.ARCHIVO_SUBIDO,
       descripcion: `Se agregó el enlace "${enlace.nombre}" al proyecto "${enlace.proyecto.nombre}"`,
       idUsuario,
       idCliente: enlace.proyecto.idCliente,
@@ -276,7 +276,7 @@ export class ArchivoService {
     });
 
     // 4. Registrar actividad
-    await this.actividadService.registrar({
+    await this.actividadesService.registrar({
       tipo: TipoActividad.EDICION,
       descripcion: `Se actualizó el archivo "${archivoActualizado.nombre}"`,
       idUsuario,
@@ -308,8 +308,8 @@ export class ArchivoService {
     });
 
     // 5. Registrar actividad
-    await this.actividadService.registrar({
-      tipo: TipoActividad.EDICION,
+    await this.actividadesService.registrar({
+      tipo: TipoActividad.ARCHIVO_ELIMINADO,
       descripcion: `Se eliminó el archivo "${archivo.nombre}"`,
       idUsuario,
       idCliente: archivo.proyecto.idCliente,

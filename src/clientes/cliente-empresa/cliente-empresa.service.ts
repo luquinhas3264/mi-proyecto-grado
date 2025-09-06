@@ -2,14 +2,14 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateClienteDto } from './dto/create-cliente.dto';
 import { UpdateClienteDto } from './dto/update-cliente.dto';
-import { ActividadService } from '../actividad/actividad.service';
-import { TipoActividad } from '../actividad/dto/create-actividad.dto';
+import { ActividadesService } from 'src/actividades/actividades.service';
+import { TipoActividad } from 'src/actividades/enums/tipo-actividad.enum';
 
 @Injectable()
 export class ClienteEmpresaService {
   constructor(
     private prisma: PrismaService,
-    private actividadService: ActividadService,
+    private actividadesService: ActividadesService,
   ) {}
 
   async crear(dto: CreateClienteDto, idUsuario: string) {
@@ -20,9 +20,9 @@ export class ClienteEmpresaService {
     });
 
     // Registrar actividad
-    await this.actividadService.registrar({
+    await this.actividadesService.registrar({
       tipo: TipoActividad.CREACION,
-      descripcion: `Se registró el cliente ${dto.razonSocial}`,
+      descripcion: `Se registró el cliente "${dto.razonSocial}"`,
       idUsuario,
       idCliente: cliente.idCliente,
     });
@@ -83,7 +83,7 @@ export class ClienteEmpresaService {
     });
     
     // Registrar actividad
-    await this.actividadService.registrar({
+    await this.actividadesService.registrar({
       tipo: TipoActividad.EDICION,
       descripcion: `El cliente "${cliente.razonSocial}" fue editado.`,
       idUsuario,
@@ -93,10 +93,20 @@ export class ClienteEmpresaService {
     return cliente;
   }
 
-  async eliminar(id: string) {
-    return this.prisma.clienteEmpresa.update({
+  async eliminar(id: string, idUsuario: string) {
+    const cliente = await this.prisma.clienteEmpresa.update({
       where: { idCliente: id },
       data: { activo: false },
     });
+
+    // Registrar actividad como cambio de estado (soft delete)
+    await this.actividadesService.registrar({
+      tipo: TipoActividad.CAMBIO_ESTADO_CLIENTE,
+      descripcion: `El estado del cliente "${cliente.razonSocial}" fue cambiado a inactivo.`,
+      idUsuario,
+      idCliente: cliente.idCliente,
+    });
+
+    return cliente;
   }
 }

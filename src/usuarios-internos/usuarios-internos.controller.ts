@@ -37,8 +37,7 @@ export class UsuariosInternosController {
 
   @UseGuards(JwtAuthGuard) // Solo autenticación, sin permisos
   @Get('/mi-perfil')
-  getPerfil(@Request() req) {
-    console.log('getPerfil - idUsuario recibido:', req.user.idUsuario);
+  getPerfil(@Request() req) {    
     return this.service.findById(req.user.idUsuario);
   }
 

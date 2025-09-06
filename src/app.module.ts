@@ -7,11 +7,12 @@ import { ClientesModule } from './clientes/clientes.module';
 import { ProyectosModule } from './proyectos/proyectos.module';
 import { TareasModule } from './tareas/tareas.module';
 import { ArchivosModule } from './archivos/archivos.module';
+import { ActividadesModule } from './actividades/actividades.module';
 
 
 
 @Module({
-  imports: [AuthModule, UsuariosInternosModule, RolesModule, PermisosModule, ClientesModule, ProyectosModule, TareasModule, ArchivosModule],
+  imports: [AuthModule, UsuariosInternosModule, RolesModule, PermisosModule, ClientesModule, ProyectosModule, TareasModule, ArchivosModule, ActividadesModule],
   controllers: [],
   providers: [],
 })

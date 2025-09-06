@@ -5,8 +5,8 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateProyectoDto } from './dto/create-proyecto.dto';
-import { ActividadService } from 'src/clientes/actividad/actividad.service';
-import { TipoActividad } from 'src/clientes/actividad/dto/create-actividad.dto';
+import { ActividadesService } from 'src/actividades/actividades.service';
+import { TipoActividad } from 'src/actividades/enums/tipo-actividad.enum';
 import { EstadoProyecto } from './enums/estado-proyecto.enum';
 import { UpdateProyectoDto } from './dto/update-proyecto.dto';
 import { differenceInCalendarDays, isBefore } from 'date-fns';
@@ -15,7 +15,7 @@ import { differenceInCalendarDays, isBefore } from 'date-fns';
 export class ProyectoService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly actividadService: ActividadService,
+    private readonly actividadesService: ActividadesService,
   ) {}
 
   async crearProyecto(dto: CreateProyectoDto, idUsuario: string) {
@@ -71,7 +71,7 @@ export class ProyectoService {
     });
 
     // Registrar actividad
-    await this.actividadService.registrar({
+    await this.actividadesService.registrar({
       tipo: TipoActividad.CREACION,
       descripcion: `Se creó el proyecto "${proyecto.nombre} para el cliente ${proyecto.cliente.razonSocial}"`,
       idUsuario,
@@ -239,15 +239,10 @@ export class ProyectoService {
       },
     });
 
-    // Registrar actividad
-    let descripcionActividad = `Se actualizó el proyecto "${proyecto.nombre}"`;
-    if (dto.estado && dto.estado !== proyecto.estado) {
-      descripcionActividad += ` - Estado cambió a: ${dto.estado}`;
-    }
-
-    await this.actividadService.registrar({
+    // Registrar actividad de edición de proyecto
+    await this.actividadesService.registrar({
       tipo: TipoActividad.EDICION,
-      descripcion: descripcionActividad,
+      descripcion: `El proyecto "${actualizado.nombre}" fue editado.`,
       idUsuario,
       idCliente: actualizado.idCliente,
       idProyecto: actualizado.idProyecto,
@@ -263,18 +258,18 @@ export class ProyectoService {
 
     if (!proyecto) throw new NotFoundException('Proyecto no encontrado');
 
-    await this.prisma.proyecto.update({
+    const eliminado = await this.prisma.proyecto.update({
       where: { idProyecto: id },
       data: { activo: false },
     });
 
-    // Registrar actividad
-    await this.actividadService.registrar({
-      tipo: TipoActividad.EDICION,
-      descripcion: `Se eliminó el proyecto "${proyecto.nombre}"`,
+    // Registrar actividad de cambio de estado (soft delete)
+    await this.actividadesService.registrar({
+      tipo: TipoActividad.CAMBIO_ESTADO_PROYECTO,
+      descripcion: `El estado del proyecto "${eliminado.nombre}" fue cambiado a inactivo.`,
       idUsuario,
-      idCliente: proyecto.idCliente,
-      idProyecto: proyecto.idProyecto,
+      idCliente: eliminado.idCliente,
+      idProyecto: eliminado.idProyecto,
     });
 
     return { mensaje: 'Proyecto eliminado correctamente' };

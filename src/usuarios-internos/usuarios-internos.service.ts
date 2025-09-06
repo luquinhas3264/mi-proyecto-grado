@@ -27,13 +27,11 @@ export class UsuariosInternosService {
     });
   }
 
-  async findById(id: string) {
-    console.log('findById - idUsuario buscado:', id);
+  async findById(id: string) {    
     const usuario = await this.prisma.usuarioInterno.findUnique({
       where: { idUsuario: id },
       include: { rol: true },
-    });
-    console.log('findById - usuario encontrado:', usuario);
+    });    
     if (!usuario) throw new NotFoundException('Usuario no encontrado');
     return usuario;
   }
@@ -58,6 +56,7 @@ export class UsuariosInternosService {
     return this.prisma.usuarioInterno.update({
       where: { idUsuario },
       data,
+      include: { rol: true },
     });
   }
 }

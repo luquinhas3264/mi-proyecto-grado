@@ -6,14 +6,14 @@ import {
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateNotaProyectoDto } from './dto/create-nota.dto';
 import { UpdateNotaProyectoDto } from './dto/update-nota.dto';
-import { ActividadService } from 'src/clientes/actividad/actividad.service';
-import { TipoActividad } from 'src/clientes/actividad/dto/create-actividad.dto';
+import { ActividadesService } from 'src/actividades/actividades.service';
+import { TipoActividad } from 'src/actividades/enums/tipo-actividad.enum';
 
 @Injectable()
 export class NotaProyectoService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly actividadService: ActividadService,
+    private readonly actividadesService: ActividadesService,
   ) {}
 
   async crear(idProyecto: string, dto: CreateNotaProyectoDto, idUsuario: string) {
@@ -44,8 +44,8 @@ export class NotaProyectoService {
       },
     });
 
-    await this.actividadService.registrar({
-      tipo: TipoActividad.CREACION,
+    await this.actividadesService.registrar({
+      tipo: TipoActividad.NOTA_AGREGADA,
       descripcion: `Se agregó una nota al proyecto "${proyecto.nombre}"`,
       idUsuario,
       idCliente: proyecto.idCliente,
@@ -92,7 +92,7 @@ export class NotaProyectoService {
     await this.prisma.notaProyecto.delete({
       where: { idNota },
     });
-
+    
     return { message: 'Nota eliminada correctamente' };
   }
 }
