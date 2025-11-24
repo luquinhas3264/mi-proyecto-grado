@@ -14,11 +14,13 @@ datasource db {
 }
 
 model UsuarioInterno {
-  idUsuario   String  @id @default(uuid())
-  nombre      String
-  correo      String  @unique
-  contraseña String
-  activo      Boolean @default(true)
+  idUsuario      String    @id @default(uuid())
+  nombre         String
+  correo         String    @unique
+  contraseña     String
+  activo         Boolean   @default(true)
+  fechaRegistro  DateTime  @default(now())
+  ultimoAcceso   DateTime?
 
   idRol String
   rol   Rol    @relation(fields: [idRol], references: [idRol])

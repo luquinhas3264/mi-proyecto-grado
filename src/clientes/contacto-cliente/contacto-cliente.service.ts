@@ -12,6 +12,10 @@ export class ContactoClienteService {
     private actividadesService: ActividadesService,
   ) {}
 
+  async obtenerTodos() {
+    return this.prisma.contactoCliente.findMany();
+  }
+
   async crear(dto: CreateContactoDto, idUsuario: string) {
     const contacto = await this.prisma.contactoCliente.create({
       data: {
@@ -51,14 +55,18 @@ export class ContactoClienteService {
     return contacto;
   }
 
-  async actualizar(idContacto: string, dto: UpdateContactoDto, idUsuario: string) {
+  async actualizar(
+    idContacto: string,
+    dto: UpdateContactoDto,
+    idUsuario: string,
+  ) {
     const contacto = await this.prisma.contactoCliente.update({
       where: { idContacto },
       data: {
         ...dto,
       },
     });
-    
+
     // Registrar actividad
     await this.actividadesService.registrar({
       tipo: TipoActividad.EDICION,

@@ -17,7 +17,7 @@ export enum TipoActividad {
   // Actividades de gestión de contactos
   CAMBIO_ESTADO_CONTACTO = 'cambio_estado_contacto',  
 
-  // Actividades de gestión de proyectos  
+  // Actividades de gestión de proyectos    
   FINALIZACION = 'finalizacion',
   CAMBIO_ESTADO_PROYECTO = 'cambio_estado_proyecto',
 

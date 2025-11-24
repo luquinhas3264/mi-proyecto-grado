@@ -11,8 +11,16 @@ export class EtiquetaClienteService {
     return this.prisma.etiquetaCliente.create({ data: dto });
   }
 
-  async obtenerTodas() {
-    return this.prisma.etiquetaCliente.findMany();
+  async obtenerTodos() {
+    const etiquetas = await this.prisma.etiquetaCliente.findMany({
+      include: {
+        clientes: true,
+      },
+    });
+    return etiquetas.map((e) => ({
+      ...e,
+      totalClientes: e.clientes.length,
+    }));
   }
 
   async actualizar(idEtiqueta: string, dto: UpdateEtiquetaDto) {
@@ -23,6 +31,14 @@ export class EtiquetaClienteService {
   }
 
   async eliminar(idEtiqueta: string) {
+    const asignaciones = await this.prisma.clienteEtiqueta.count({
+      where: { idEtiqueta },
+    });
+    if (asignaciones > 0) {
+      throw new Error(
+        'No se puede eliminar la etiqueta porque tiene clientes asignados',
+      );
+    }
     return this.prisma.etiquetaCliente.delete({
       where: { idEtiqueta },
     });

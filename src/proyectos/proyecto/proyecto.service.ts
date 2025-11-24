@@ -73,7 +73,7 @@ export class ProyectoService {
     // Registrar actividad
     await this.actividadesService.registrar({
       tipo: TipoActividad.CREACION,
-      descripcion: `Se creó el proyecto "${proyecto.nombre} para el cliente ${proyecto.cliente.razonSocial}"`,
+      descripcion: `Se creó el proyecto "${proyecto.nombre}" para el cliente "${proyecto.cliente.razonSocial}"`,
       idUsuario,
       idCliente: proyecto.idCliente,
       idProyecto: proyecto.idProyecto,
@@ -150,16 +150,32 @@ export class ProyectoService {
           orderBy: {
             fecha: 'desc',
           },
-          take: 10, // Últimas 10 actividades
+          take: 10,
         },
         tareas: true,
-        // archivos: true (cuando exista),
+        archivos: true,
       },
     });
 
     if (!proyecto) throw new NotFoundException('Proyecto no encontrado');
 
-    return proyecto;
+    // Lógica igual que en obtenerTodos
+    const hoy = new Date();
+    const diasRestantes =
+      proyecto.fechaFin && proyecto.estado !== EstadoProyecto.FINALIZADO
+        ? differenceInCalendarDays(new Date(proyecto.fechaFin), hoy)
+        : null;
+
+    const estaAtrasado =
+      proyecto.fechaFin &&
+      isBefore(new Date(proyecto.fechaFin), hoy) &&
+      proyecto.estado !== EstadoProyecto.FINALIZADO;
+
+    return {
+      ...proyecto,
+      diasRestantes,
+      estaAtrasado,
+    };
   }
 
   async obtenerEstadisticas(idCliente?: string) {
@@ -225,24 +241,45 @@ export class ProyectoService {
       throw new NotFoundException('Proyecto no encontrado');
     }
 
+    // Limpia propiedades undefined del DTO
+    Object.keys(dto).forEach((key) => {
+      if (dto[key] === undefined) {
+        delete dto[key];
+      }
+    });
+
+    const dataToUpdate = { ...dto };
+    if (dataToUpdate.fechaInicio) {
+      if (/^\d{4}-\d{2}-\d{2}$/.test(dataToUpdate.fechaInicio)) {
+        dataToUpdate.fechaInicio = new Date(
+          dataToUpdate.fechaInicio + 'T00:00:00.000Z',
+        ).toISOString();
+      }
+    }
+    if (dataToUpdate.fechaFin) {
+      if (/^\d{4}-\d{2}-\d{2}$/.test(dataToUpdate.fechaFin)) {
+        dataToUpdate.fechaFin = new Date(
+          dataToUpdate.fechaFin + 'T00:00:00.000Z',
+        ).toISOString();
+      }
+    }
     const actualizado = await this.prisma.proyecto.update({
       where: { idProyecto },
-      data: {
-        ...dto,
-      },
+      data: dataToUpdate,
       include: {
-        cliente: {
-          select: {
-            razonSocial: true,
-          },
-        },
+        cliente: { select: { razonSocial: true } },
       },
     });
 
-    // Registrar actividad de edición de proyecto
+    const esFinalizacion =
+      proyecto.estado !== EstadoProyecto.FINALIZADO &&
+      dataToUpdate.estado === EstadoProyecto.FINALIZADO;
+
     await this.actividadesService.registrar({
-      tipo: TipoActividad.EDICION,
-      descripcion: `El proyecto "${actualizado.nombre}" fue editado.`,
+      tipo: esFinalizacion ? TipoActividad.FINALIZACION : TipoActividad.EDICION,
+      descripcion: esFinalizacion
+        ? `El proyecto "${actualizado.nombre}" fue finalizado.`
+        : `El proyecto "${actualizado.nombre}" fue editado.`,
       idUsuario,
       idCliente: actualizado.idCliente,
       idProyecto: actualizado.idProyecto,

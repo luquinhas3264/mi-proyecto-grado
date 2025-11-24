@@ -7,7 +7,7 @@ import {
   Patch,
   Delete,
   UseGuards,
-  Req,    
+  Req,
 } from '@nestjs/common';
 import { ContactoClienteService } from './contacto-cliente.service';
 import { CreateContactoDto } from './dto/create-contacto.dto';
@@ -23,6 +23,12 @@ import { RequestWithUser } from 'src/auth/interfaces/request-with-user.interface
 @UseGuards(JwtAuthGuard, PermisosGuard)
 export class ContactoClienteController {
   constructor(private readonly contactoService: ContactoClienteService) {}
+
+  @Get()
+  @Permiso('contactos', 'ver')
+  obtenerTodos() {
+    return this.contactoService.obtenerTodos();
+  }
 
   @Post()
   @Permiso('contactos', 'crear')
@@ -44,14 +50,21 @@ export class ContactoClienteController {
 
   @Patch(':idContacto')
   @Permiso('contactos', 'editar')
-  actualizar(@Param('idContacto') idContacto: string, @Body() dto: UpdateContactoDto, @Req() req: RequestWithUser) {
+  actualizar(
+    @Param('idContacto') idContacto: string,
+    @Body() dto: UpdateContactoDto,
+    @Req() req: RequestWithUser,
+  ) {
     return this.contactoService.actualizar(idContacto, dto, req.user.idUsuario);
   }
 
   @Delete(':idContacto')
   @Permiso('contactos', 'eliminar')
-  eliminar(@Param('idContacto') idContacto: string, @Req() req: RequestWithUser) {
-    const idUsuario = req.user.idUsuario;    
+  eliminar(
+    @Param('idContacto') idContacto: string,
+    @Req() req: RequestWithUser,
+  ) {
+    const idUsuario = req.user.idUsuario;
     return this.contactoService.eliminar(idContacto, idUsuario);
   }
 }

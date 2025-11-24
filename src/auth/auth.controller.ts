@@ -19,11 +19,5 @@ export class AuthController {
   @Post('login')
   async login(@Body() dto: LoginDto) {
     return this.authService.validarCredenciales(dto.correo, dto.contraseña);
-  }
-
-  @UseGuards(JwtAuthGuard)
-  @Get('me')
-  async me(@Request() req) {
-    return this.authService.obtenerPerfil(req.user.idUsuario);
-  }
+  }  
 }

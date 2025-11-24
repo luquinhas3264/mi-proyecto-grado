@@ -14,6 +14,7 @@ import {
   ParseUUIDPipe,
   UseGuards,
   Req,
+  UploadedFiles,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -33,8 +34,9 @@ import {
   UploadArchivoDto,
 } from './dto';
 import { ArchivoValidationInterceptor } from './interceptors/archivo.interceptors';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import {
+  multerConfigMultiple,
   multerConfigSingle,
   obtenerTipoDesdemime,
 } from './config/multer.config';
@@ -88,16 +90,57 @@ export class ArchivoController {
     @Body() dto: UploadArchivoDto,
     @Req() req: RequestWithUser,
   ) {
+    const descripcion = Array.isArray(dto.descripcion)
+      ? dto.descripcion[0] || ''
+      : dto.descripcion || '';
     const archivoDto: CreateArchivoDto = {
       nombre: file.originalname,
       tipo: obtenerTipoDesdemime(file.mimetype) as TipoArchivo,
       tamaño: file.size,
       url: file.path.replace(process.cwd(), ''),
-      descripcion: dto.descripcion,
+      descripcion,
       idProyecto,
     };
     const idUsuario = req.user.idUsuario;
     return this.archivoService.subirArchivo(archivoDto, idUsuario);
+  }
+
+  @Post('subir-multiples/:idProyecto')
+  @Permiso('archivos', 'subir')
+  @ApiOperation({ summary: 'Subir múltiples archivos físicos a un proyecto' })
+  @ApiParam({
+    name: 'idProyecto',
+    type: 'string',
+    description: 'ID del proyecto',
+  })
+  @ApiConsumes('multipart/form-data')
+  @UseInterceptors(
+    FilesInterceptor('files', 5, multerConfigMultiple), // Usa 'files' como nombre del campo
+    ArchivoValidationInterceptor,
+  )
+  async subirMultiplesArchivos(
+    @Param('idProyecto', ParseUUIDPipe) idProyecto: string,
+    @UploadedFiles() files: Express.Multer.File[],
+    @Body() dto: UploadArchivoDto,
+    @Req() req: RequestWithUser,
+  ) {
+    const idUsuario = req.user.idUsuario;
+    // Procesa cada archivo con descripción individual o sugerida
+    const resultados = await Promise.all(
+      files.map((file, i) => {
+        const descripcion = dto.descripcion?.[i] || '';
+        const archivoDto: CreateArchivoDto = {
+          nombre: file.originalname,
+          tipo: obtenerTipoDesdemime(file.mimetype) as TipoArchivo,
+          tamaño: file.size,
+          url: file.path.replace(process.cwd(), ''),
+          descripcion,
+          idProyecto,
+        };
+        return this.archivoService.subirArchivo(archivoDto, idUsuario);
+      }),
+    );
+    return resultados;
   }
 
   @Post('enlace/:idProyecto')
@@ -158,7 +201,7 @@ export class ArchivoController {
   }
 
   @Delete(':id')
-  @Permiso('archivos', 'eliminar_propios') // Puedes agregar lógica para admins con 'eliminar_todos'
+  @Permiso('archivos', 'eliminar') // Puedes agregar lógica para admins con 'eliminar_todos'
   @ApiOperation({ summary: 'Eliminar archivo o enlace por ID' })
   @ApiParam({
     name: 'id',
@@ -174,7 +217,7 @@ export class ArchivoController {
   }
 
   @Patch(':id')
-  @Permiso('archivos', 'subir') // O 'editar' si tienes ese permiso
+  @Permiso('archivos', 'editar')
   @ApiOperation({ summary: 'Actualizar metadatos de archivo/enlace' })
   @ApiParam({
     name: 'id',

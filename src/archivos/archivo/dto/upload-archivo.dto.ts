@@ -1,4 +1,4 @@
-import { IsString, IsOptional } from 'class-validator';
+import { IsString, IsOptional, IsArray } from 'class-validator';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 
 export class UploadArchivoDto {
@@ -7,6 +7,7 @@ export class UploadArchivoDto {
     example: 'Contrato firmado del cliente para el proyecto de branding'
   })
   @IsOptional()
-  @IsString()
-  descripcion?: string;
+  @IsString({ each: true })
+  @IsArray()
+  descripcion?: string[];
 }

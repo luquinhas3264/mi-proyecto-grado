@@ -12,7 +12,9 @@ export class ActividadesService {
     return this.prisma.actividad.create({
       data: {
         ...createActividadDto,
-        fecha: createActividadDto.fecha ? new Date(createActividadDto.fecha) : undefined,
+        fecha: createActividadDto.fecha
+          ? new Date(createActividadDto.fecha)
+          : undefined,
       },
     });
   }
@@ -26,7 +28,15 @@ export class ActividadesService {
     if (filter.fechaInicio || filter.fechaFin) {
       where.fecha = {};
       if (filter.fechaInicio) where.fecha.gte = new Date(filter.fechaInicio);
-      if (filter.fechaFin) where.fecha.lte = new Date(filter.fechaFin);
+      if (filter.fechaInicio || filter.fechaFin) {
+        where.fecha = {};
+        if (filter.fechaInicio) where.fecha.gte = new Date(filter.fechaInicio);
+        if (filter.fechaFin) {          
+          const fin = new Date(filter.fechaFin);
+          fin.setDate(fin.getDate() + 1);
+          where.fecha.lt = fin;
+        }
+      }
     }
     return this.prisma.actividad.findMany({
       where,
@@ -46,7 +56,9 @@ export class ActividadesService {
       where: { idActividad: id },
       data: {
         ...updateActividadDto,
-        fecha: updateActividadDto.fecha ? new Date(updateActividadDto.fecha) : undefined,
+        fecha: updateActividadDto.fecha
+          ? new Date(updateActividadDto.fecha)
+          : undefined,
       },
     });
   }
@@ -55,5 +67,21 @@ export class ActividadesService {
     return this.prisma.actividad.delete({
       where: { idActividad: id },
     });
+  }
+
+  async eliminarMasivo(ids?: string[], filtro?: any) {
+    const where: any = {};
+    if (ids && ids.length > 0) {
+      where.idActividad = { in: ids };
+    }
+    // Puedes agregar más filtros según lo que recibas en body.filtro
+    if (filtro?.idUsuario) where.idUsuario = filtro.idUsuario;
+    if (filtro?.fechaInicio || filtro?.fechaFin) {
+      where.fecha = {};
+      if (filtro.fechaInicio) where.fecha.gte = new Date(filtro.fechaInicio);
+      if (filtro.fechaFin) where.fecha.lte = new Date(filtro.fechaFin);
+    }
+    const result = await this.prisma.actividad.deleteMany({ where });
+    return { eliminadas: result.count };
   }
 }

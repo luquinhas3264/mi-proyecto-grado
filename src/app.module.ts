@@ -8,11 +8,12 @@ import { ProyectosModule } from './proyectos/proyectos.module';
 import { TareasModule } from './tareas/tareas.module';
 import { ArchivosModule } from './archivos/archivos.module';
 import { ActividadesModule } from './actividades/actividades.module';
+import { DashboardModule } from './dashboard/dashboard.module';
 
 
 
 @Module({
-  imports: [AuthModule, UsuariosInternosModule, RolesModule, PermisosModule, ClientesModule, ProyectosModule, TareasModule, ArchivosModule, ActividadesModule],
+  imports: [AuthModule, UsuariosInternosModule, RolesModule, PermisosModule, ClientesModule, ProyectosModule, TareasModule, ArchivosModule, ActividadesModule, DashboardModule],
   controllers: [],
   providers: [],
 })

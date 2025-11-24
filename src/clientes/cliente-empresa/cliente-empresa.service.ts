@@ -30,10 +30,10 @@ export class ClienteEmpresaService {
     return cliente;
   }
 
-  async obtenerTodos(etiquetaId?: string) {
+  async obtenerTodos(etiquetaId?: string, activo?: boolean) {
     return this.prisma.clienteEmpresa.findMany({
       where: {
-        activo: true,
+        ...(typeof activo === 'boolean' && { activo }),
         ...(etiquetaId && {
           etiquetas: {
             some: {
@@ -81,7 +81,7 @@ export class ClienteEmpresaService {
         ...dto,
       },
     });
-    
+
     // Registrar actividad
     await this.actividadesService.registrar({
       tipo: TipoActividad.EDICION,

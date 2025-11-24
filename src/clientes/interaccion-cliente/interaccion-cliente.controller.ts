@@ -26,6 +26,12 @@ export class InteraccionClienteController {
   crear(@Body() dto: CreateInteraccionDto, @Req() req: RequestWithUser) {
     return this.interaccionService.crear(dto, req.user.idUsuario);
   }
+  
+  @Get()
+  @Permiso('interacciones', 'ver')
+  obtenerTodos() {
+    return this.interaccionService.obtenerTodos();
+  }
 
   @Get('/contacto/:idContacto')
   @Permiso('interacciones', 'ver')

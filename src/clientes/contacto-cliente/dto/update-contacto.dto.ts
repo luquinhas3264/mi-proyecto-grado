@@ -1,4 +1,10 @@
-import { IsString, IsEmail, IsUUID, IsOptional } from 'class-validator';
+import {
+  IsString,
+  IsEmail,
+  IsUUID,
+  IsOptional,
+  IsBoolean,
+} from 'class-validator';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 
 export class UpdateContactoDto {
@@ -26,4 +32,9 @@ export class UpdateContactoDto {
   @IsOptional()
   @IsUUID()
   idCliente?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsBoolean()
+  activo?: boolean;
 }

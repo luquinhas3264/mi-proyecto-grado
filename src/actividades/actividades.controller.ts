@@ -67,9 +67,11 @@ export class ActividadesController {
   })
   async consultarActividades(@Query() filter: FilterActividadDto) {
     const actividades = await this.actividadesService.findAll(filter);
-    return actividades.map(a => ({
+    return actividades.map((a) => ({
       ...a,
-      fecha: a.fecha ? format(new Date(a.fecha), 'yyyy-MM-dd HH:mm:ss') : a.fecha,
+      fecha: a.fecha
+        ? format(new Date(a.fecha), 'yyyy-MM-dd HH:mm:ss')
+        : a.fecha,
     }));
   }
 
@@ -94,5 +96,14 @@ export class ActividadesController {
   @Permiso('historial_actividades', 'eliminar')
   async eliminarActividad(@Param('id') id: string) {
     return await this.actividadesService.eliminar(id);
+  }
+
+  @Post('eliminar-masivo')
+  @Permiso('historial_actividades', 'eliminar')
+  async eliminarActividadesMasivo(
+    @Body() body: { ids?: string[]; filtro?: any },
+  ) {
+    // Puedes aceptar un array de IDs o un filtro (por fechas, usuario, etc.)
+    return await this.actividadesService.eliminarMasivo(body.ids, body.filtro);
   }
 }

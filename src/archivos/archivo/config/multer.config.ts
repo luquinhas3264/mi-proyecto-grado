@@ -88,6 +88,15 @@ export const multerConfigSingle = {
   },
 };
 
+// Configuración específica para múltiples archivos
+export const multerConfigMultiple = {
+  ...multerConfig,
+  limits: {
+    ...multerConfig.limits,
+    files: 5, // Puedes ajustar el máximo de archivos
+  },
+};
+
 // Función helper para obtener el tipo de archivo desde el MIME type
 export const obtenerTipoDesdemime = (mimeType: string): string => {
   const extension = mimeTypes.extension(mimeType);

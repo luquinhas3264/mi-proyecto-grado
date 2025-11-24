@@ -5,6 +5,11 @@ import { EstadoTarea } from '../enums/estado-tarea.enum';
 export class FiltrosTareaDto {
   @ApiPropertyOptional()
   @IsOptional()
+  @IsUUID()
+  idProyecto?: string;
+  
+  @ApiPropertyOptional()
+  @IsOptional()
   @IsEnum(EstadoTarea)
   estado?: EstadoTarea;
 

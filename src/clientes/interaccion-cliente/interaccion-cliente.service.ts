@@ -43,26 +43,42 @@ export class InteraccionClienteService {
     return interaccion;
   }
 
-  async obtenerPorContacto(idContacto: string) {
+  async obtenerTodos() {
     return this.prisma.interaccionCliente.findMany({
-      where: { idContacto },
+      include: {
+        contacto: {
+          select: { nombre: true, idCliente: true },
+        },
+      },
       orderBy: { fecha: 'desc' },
     });
   }
 
-  async obtenerPorCliente(idCliente: string) {
-    return this.prisma.interaccionCliente.findMany({
-      where: {
-        contacto: {
-          idCliente,
-        },
+  async obtenerPorContacto(idContacto: string) {
+  return this.prisma.interaccionCliente.findMany({
+    where: { idContacto },
+    include: {
+      contacto: {
+        select: { nombre: true, idCliente: true },
       },
-      include: {
-        contacto: {
-          select: { nombre: true },
-        },
+    },
+    orderBy: { fecha: 'desc' },
+  });
+}
+
+async obtenerPorCliente(idCliente: string) {
+  return this.prisma.interaccionCliente.findMany({
+    where: {
+      contacto: {
+        idCliente,
       },
-      orderBy: { fecha: 'desc' },
-    });
-  }
+    },
+    include: {
+      contacto: {
+        select: { nombre: true, idCliente: true },
+      },
+    },
+    orderBy: { fecha: 'desc' },
+  });
+}
 }

@@ -5,6 +5,13 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  // Servir archivos estáticos desde /uploads/proyectos
+  const express = require('express');
+  const { join } = require('path');
+  app.use(
+    '/uploads/proyectos',
+    express.static(join(process.cwd(), 'uploads/proyectos')),
+  );
 
   app.useGlobalPipes(
     new ValidationPipe({
@@ -44,6 +51,8 @@ async function bootstrap() {
       'Actividades asociadas a usuarios, clientes y proyectos',
     )
     .addTag('Tareas', 'Gestión de tareas por proyecto')
+    .addTag('Archivos', 'Gestión de archivos asociados a proyectos')
+    .addTag('Dashboard', 'Dashboard del sistema')
     .addSecurityRequirements('bearer')
     .build();
 
@@ -55,7 +64,7 @@ async function bootstrap() {
   });
 
   app.enableCors({
-    origin: 'http://localhost:5173', // o '*' para permitir todos los orígenes
+    origin: ['http://localhost:5173', 'http://localhost:4173'],
     credentials: true,
   });
 

@@ -93,7 +93,10 @@ export class TareaService {
   }
 
   // Visualizar tareas asignadas
-  async obtenerPorResponsable(idUsuarioResponsable: string, filtros: FiltrosTareaDto) {
+  async obtenerPorResponsable(
+    idUsuarioResponsable: string,
+    filtros: FiltrosTareaDto,
+  ) {
     return this.aplicarFiltros({ idUsuarioResponsable }, filtros);
   }
 
@@ -179,7 +182,7 @@ export class TareaService {
     }
 
     const tarea = await this.obtenerPorId(idTarea);
-    
+
     const tareaActualizada = await this.prisma.tarea.update({
       where: { idTarea },
       data: { estado: estado as EstadoTarea },
@@ -205,7 +208,11 @@ export class TareaService {
   }
 
   // Asignar responsable
-  async asignarResponsable(idTarea: string, idUsuarioResponsable: string, idUsuario: string) {
+  async asignarResponsable(
+    idTarea: string,
+    idUsuarioResponsable: string,
+    idUsuario: string,
+  ) {
     const tarea = await this.obtenerPorId(idTarea);
 
     // Validar usuario responsable
@@ -250,7 +257,7 @@ export class TareaService {
       where: { idTarea },
     });
 
-    // Registrar actividad 
+    // Registrar actividad
     await this.actividadesService.registrar({
       tipo: TipoActividad.ELIMINACION,
       descripcion: `Se eliminó la tarea "${tarea.nombre}"`,
@@ -266,13 +273,13 @@ export class TareaService {
   async obtenerEstadisticasProyecto(idProyecto: string) {
     const [total, porEstado, vencidas] = await Promise.all([
       this.prisma.tarea.count({ where: { idProyecto } }),
-      
+
       this.prisma.tarea.groupBy({
         by: ['estado'],
         where: { idProyecto },
         _count: true,
       }),
-      
+
       this.prisma.tarea.count({
         where: {
           idProyecto,
@@ -297,6 +304,10 @@ export class TareaService {
     const where: any = { ...whereBase };
 
     // Aplicar filtros
+    if (filtros.idProyecto) {
+      where.idProyecto = filtros.idProyecto;
+    }
+    
     if (filtros.estado) {
       where.estado = filtros.estado;
     }
@@ -351,8 +362,8 @@ export class TareaService {
   }
 
   // Hook para futuras notificaciones (preparado)
-//   private notificarCambio(evento: string, tarea: any) {
-//     // TODO: Implementar cuando tengamos módulo de notificaciones
-//     console.log(`[NOTIFICACIÓN] ${evento}:`, tarea.nombre);
-//   }
+  //   private notificarCambio(evento: string, tarea: any) {
+  //     // TODO: Implementar cuando tengamos módulo de notificaciones
+  //     console.log(`[NOTIFICACIÓN] ${evento}:`, tarea.nombre);
+  //   }
 }

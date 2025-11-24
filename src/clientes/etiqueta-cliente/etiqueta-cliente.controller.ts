@@ -30,8 +30,8 @@ export class EtiquetaClienteController {
 
   @Get()
   @Permiso('etiquetas', 'ver')
-  obtenerTodas() {
-    return this.etiquetaService.obtenerTodas();
+  obtenerTodos() {
+    return this.etiquetaService.obtenerTodos();
   }
 
   @Patch(':id')
